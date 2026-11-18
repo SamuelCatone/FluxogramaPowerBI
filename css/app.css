@@ -218,8 +218,9 @@ summary{cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink-2)}
 .dcols li{margin:2px 0}
 /* menu, isolamento, colunas, comparação */
 .btn:disabled{opacity:.45; cursor:default}
-.more{position:relative}
-.more summary{list-style:none}
+/* o menu Mais é um <details>: anula a margem e o estilo de summary feitos para os painéis */
+.more{position:relative; margin:0}
+.more summary{list-style:none; color:inherit; font-weight:inherit}
 .more summary::-webkit-details-marker{display:none}
 .more .menu{position:absolute; right:0; top:calc(100% + 6px); background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); padding:4px; min-width:230px; z-index:8; display:flex; flex-direction:column}
 .more .menu button{border:0; background:none; color:var(--ink); text-align:left; padding:8px 10px; border-radius:5px; font-size:13px; cursor:pointer}
