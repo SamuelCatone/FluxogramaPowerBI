@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Veja e monte o fluxo de um relatório Power BI: origens, consultas, tabelas, medidas e visuais. Roda no navegador, sem servidor.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fluxo do Power BI</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="bar">
+  <div class="brand"><span class="flow" aria-hidden="true"><i style="background:var(--c0)"></i><i style="background:var(--c1)"></i><i style="background:var(--c2)"></i><i style="background:var(--c3)"></i><i style="background:var(--c4)"></i></span><h1>Fluxo do Power BI</h1><span id="fname"></span></div>
+  <nav class="views" id="views" aria-label="Vistas"><button data-view="fluxo" aria-pressed="true">Fluxo</button><button data-view="bp" aria-pressed="false">Boas práticas <span class="dn" id="bpCount"></span></button></nav>
+  <div class="tools">
+    <div class="search"><input id="q" type="search" placeholder="Buscar no fluxo…" title="Buscar tabela, medida, página ou visual (atalho /)" aria-label="Buscar no fluxo"></div>
+    <button class="btn diagbtn" id="btnDiag">Diagnóstico</button>
+    <button class="btn" id="btnCmp" title="Comparar com outra versão do .pbit">Comparar</button>
+    <button class="btn" id="btnIso" aria-pressed="false" disabled>Isolar</button>
+    <button class="btn" id="btnFit" title="Ajustar o canvas à tela (0)">Ajustar</button>
+    <button class="btn" id="btnFold">Abrir pastas</button>
+    <button class="btn" id="btnRels" aria-pressed="false">Relacionamentos</button>
+    <button class="btn" id="btnHelp" title="Tutorial rápido de como usar">Ajuda</button>
+    <details class="more" id="more"><summary class="btn">Mais</summary>
+      <div class="menu" id="moremenu">
+        <button class="narrow-sm" id="mCmp">Comparar versões</button>
+        <button class="narrow-sm" id="mIso">Isolar caminho</button>
+        <button class="narrow-sm" id="mRels">Relacionamentos</button>
+        <button class="narrow" id="mFit">Ajustar à tela</button>
+        <button class="narrow" id="mFold">Abrir pastas</button>
+        <button id="dictXlsx">Dicionário de dados (Excel)</button>
+        <button id="dictMd">Dicionário de dados (Markdown)</button>
+        <hr>
+        <button id="expPng">Exportar imagem PNG</button>
+        <button id="expSvg">Exportar imagem SVG</button>
+        <button id="saveDraw">Salvar desenho em arquivo</button>
+        <button id="openDraw">Abrir desenho de arquivo</button>
+        <hr>
+        <button id="btnAuto" aria-pressed="false">Mostrar datas automáticas</button>
+        <button id="btnReset">Reorganizar blocos</button>
+        <button id="cmpNew">Comparar com outro arquivo</button>
+        <hr>
+        <button id="mNewBlank">Novo fluxo em branco</button>
+        <button id="mNewExample">Novo fluxo com exemplo</button>
+        <button id="btnFile">Abrir arquivo .pbit</button>
+      </div>
+    </details>
+  </div>
+</header>
+<main>
+  <div id="vp" tabindex="-1">
+    <div id="world"><div id="lanes"></div><div id="frames"></div><svg id="edges" aria-hidden="true"></svg><div id="heads"></div><div id="nodes"></div><div id="notes"></div><svg id="uarrows"></svg><div id="ltools" hidden><button data-lact="add" title="Inserir um card no meio" aria-label="Inserir um card no meio da ligação"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg></button><button data-lact="del" title="Remover ligação" aria-label="Remover ligação"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5M7 7v4M9 7v4"/></svg></button></div><div id="lpop" hidden></div><svg id="tmp" aria-hidden="true"><path id="tmpline" d=""/></svg><div id="alabels"></div></div>
+  </div>
+  <div class="empty">
+    <div class="card start">
+      <header class="start-head">
+        <h2>Veja o caminho dos dados, da origem até o visual</h2>
+        <div class="pipe"><span class="c0">Origem</span><span class="c1">Consulta e tratamento</span><span class="c2">Tabela</span><span class="c3">Medida</span><span class="c4">Página e visual</span></div>
+      </header>
+      <div class="start-cols">
+        <section class="start-col">
+          <h3>A partir do seu relatório</h3>
+          <p>Escolha o .pbit e o fluxo é desenhado sozinho, com diagnóstico, boas práticas e dicionário de dados.</p>
+          <div class="drop">
+            <button class="primary" id="pick">Escolher arquivo .pbit</button>
+            <small>ou arraste o arquivo para cá</small>
+          </div>
+          <div class="msg" id="msg" role="status"></div>
+          <p class="how">O arquivo é lido só neste navegador e não é enviado para lugar nenhum. Para gerar o .pbit no Power BI Desktop: Arquivo → Exportar → Modelo do Power BI.</p>
+        </section>
+        <section class="start-col">
+          <h3>Monte o seu próprio fluxo</h3>
+          <p>As cinco etapas já vêm prontas. Arraste os cards modelo e ligue um no outro.</p>
+          <div class="startgrid">
+            <button class="startbtn" id="newBlank"><strong>Fluxo em branco</strong><span>Comece do zero, só com as etapas.</span></button>
+            <button class="startbtn" id="newExample"><strong>Começar com um exemplo</strong><span>Um fluxo financeiro simples, pronto para adaptar.</span></button>
+          </div>
+          <div class="resume" id="resumeRow" hidden><button class="linkbtn" id="resumeManual">Continuar o fluxo que você estava montando</button></div>
+          <div class="resume"><button class="linkbtn" id="openJson">Abrir um fluxo ou desenho salvo (.json)</button></div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <div id="legend" aria-label="Legenda"></div>
+  <div class="zoom"><button id="zout" aria-label="Afastar">−</button><span id="zoomv">100%</span><button id="zin" aria-label="Aproximar">+</button><button id="zfit" aria-label="Ajustar à tela" title="Ajustar à tela (0)"><svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V3h5M17 8V3h-5M3 12v5h5M17 12v5h-5"/></svg></button></div>
+  <div id="marquee" hidden></div>
+  <aside id="palette" aria-label="Modelos de cards"></aside>
+  <button id="palOpen" title="Mostrar os modelos de cards">Modelos</button>
+  <div id="toolbox" hidden role="toolbar" aria-label="Ferramentas de desenho">
+    <button data-tool="select" aria-pressed="true" title="Selecionar e mover (Esc)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3l10 6.5-4.6 1.1L13 16l-2 1-2.6-5.4L5 14.5z"/></svg><span>Selecionar</span></button>
+    <button data-tool="arrow" aria-pressed="false" title="Ligar blocos com uma seta"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 16L16 4M16 4h-6M16 4v6"/></svg><span>Seta</span></button>
+    <button data-tool="frame" aria-pressed="false" title="Moldura para agrupar uma área"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="5" width="14" height="11" rx="2"/><path d="M3 8h6"/></svg><span>Moldura</span></button>
+    <button data-tool="note" aria-pressed="false" title="Anotação"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h12v9l-4 5H4z M12 17v-5h4"/></svg><span>Anotação</span></button>
+    <button class="tb-toggle" id="tbToggle" aria-expanded="true" aria-label="Recolher ferramentas" title="Recolher ferramentas"><svg viewBox="0 0 20 20" preserveAspectRatio="none" aria-hidden="true"><path d="M12 5l-5 5 5 5"/></svg></button>
+  </div>
+  <div id="toast" role="status" hidden></div>
+  <div id="isobar" hidden><span id="isotxt"></span><button class="btn" id="isoexit">Mostrar tudo</button></div>
+  <section id="bp" hidden aria-label="Boas práticas">
+    <div class="bp-wrap">
+      <aside class="bp-side"><h2>Boas práticas</h2><p class="meta" id="bpSum"></p><div id="bpRules"></div></aside>
+      <div class="bp-main"><div class="bp-top"><input id="bpq" type="search" placeholder="Filtrar por nome da medida…" aria-label="Filtrar medidas"></div><div id="bpList"></div></div>
+    </div>
+  </section>
+  <div id="tour" hidden><div id="tourSpot"></div><div id="tourCard" role="dialog" aria-modal="true" aria-labelledby="tourTitle"><span id="tourStep"></span><h3 id="tourTitle"></h3><p id="tourText"></p><div class="tourbtns"><button class="btn" id="tourSkip">Fechar</button><span></span><button class="btn" id="tourPrev">Anterior</button><button class="primary" id="tourNext">Próximo</button></div></div></div>
+  <aside id="panel" hidden aria-label="Detalhes"><div class="ptop"><button id="pclose" aria-label="Fechar detalhes" title="Fechar (Esc)"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8"/></svg></button></div><div id="pbody"></div></aside>
+</main>
+<input type="file" id="file" accept=".pbit" hidden>
+<input type="file" id="file2" accept=".pbit" hidden>
+<input type="file" id="file3" accept=".json,application/json" hidden>
+<script src="js/vendor/jszip.min.js" defer></script>
+<script src="js/analise/leitura.js" defer></script>
+<script src="js/analise/uso-colunas.js" defer></script>
+<script src="js/analise/boas-praticas-regras.js" defer></script>
+<script src="js/analise/diagnostico.js" defer></script>
+<script src="js/analise/comparacao.js" defer></script>
+<script src="js/interface/estado.js" defer></script>
+<script src="js/interface/canvas.js" defer></script>
+<script src="js/interface/desenho-livre.js" defer></script>
+<script src="js/interface/exportar.js" defer></script>
+<script src="js/interface/fluxo-proprio.js" defer></script>
+<script src="js/interface/boas-praticas.js" defer></script>
+<script src="js/interface/dicionario.js" defer></script>
+<script src="js/interface/vista.js" defer></script>
+<script src="js/interface/painel.js" defer></script>
+<script src="js/interface/arquivos.js" defer></script>
+<script src="js/interface/eventos.js" defer></script>
+<script src="js/interface/tutorial.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>
